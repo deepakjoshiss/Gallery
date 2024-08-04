@@ -98,7 +98,7 @@ android {
 }
 
 dependencies {
-    implementation(libs.fossify.commons)
+    implementation(project(":Commons:commons"))
     implementation(libs.android.image.cropper)
     implementation(libs.exif)
     implementation(libs.android.gif.drawable)

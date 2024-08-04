@@ -18,7 +18,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "Gallery"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-include(":app")
+include(":app", ":Commons:commons")
 
 // TODO: This will be deprecated in future. Migrate to the newer `pluginManagement { includeBuild() }` mechanism instead of explicitly substituting dependency.
 /*includeBuild("../Commons") {

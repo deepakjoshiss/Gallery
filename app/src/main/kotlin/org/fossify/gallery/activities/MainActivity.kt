@@ -12,6 +12,7 @@ import android.provider.MediaStore.Video
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.Toast
+import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.RecyclerView
 import org.fossify.commons.dialogs.CreateNewFolderDialog
 import org.fossify.commons.dialogs.FilePickerDialog
@@ -427,7 +428,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     }
 
     private fun updateMenuColors() {
-        updateStatusbarColor(getProperBackgroundColor())
+        updateStatusbarColor(ColorUtils.setAlphaComponent( getProperBackgroundColor(), 100))
         binding.mainMenu.updateColors()
     }
 
