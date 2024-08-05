@@ -83,6 +83,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     private var mStoredTextColor = 0
     private var mStoredPrimaryColor = 0
     private var mStoredStyleString = ""
+    private var mInternalIntent = false;
     private val binding by viewBinding(ActivityMainBinding::inflate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,6 +102,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             startNewPhotoFetcher()
         }
 
+        mInternalIntent = referrer?.host == packageName
         mIsPickImageIntent = isPickImageIntent(intent)
         mIsPickVideoIntent = isPickVideoIntent(intent)
         mIsGetImageContentIntent = isGetImageContentIntent(intent)
@@ -339,6 +341,10 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 if (resultUri != null) {
                     resultIntent.data = resultUri
                     resultIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+
+                if(mInternalIntent) {
+                    resultIntent.putExtra("path", resultData.data.toString())
                 }
 
                 setResult(Activity.RESULT_OK, resultIntent)
@@ -872,9 +878,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
     private fun fillPickedPaths(resultData: Intent, resultIntent: Intent) {
         val paths = resultData.extras!!.getStringArrayList(PICKED_PATHS)
-        val uris = paths!!.map { getFilePublicUri(File(it), BuildConfig.APPLICATION_ID) } as ArrayList
+        val uris = paths!!.map { if (mInternalIntent) Uri.parse(it) else getFilePublicUri(File(it), BuildConfig.APPLICATION_ID) } as ArrayList
         val clipData = ClipData("Attachment", arrayOf("image/*", "video/*"), ClipData.Item(uris.removeAt(0)))
-
         uris.forEach {
             clipData.addItem(ClipData.Item(it))
         }

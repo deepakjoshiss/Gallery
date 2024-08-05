@@ -24,6 +24,7 @@ import org.fossify.commons.models.FileDirItem
 import org.fossify.commons.views.MyRecyclerView
 import org.fossify.gallery.R
 import org.fossify.gallery.activities.ViewPagerActivity
+import org.fossify.gallery.aes.startAesActivity
 import org.fossify.gallery.databinding.*
 import org.fossify.gallery.dialogs.DeleteWithRememberDialog
 import org.fossify.gallery.extensions.*
@@ -176,6 +177,7 @@ class MediaAdapter(
             R.id.cab_set_as -> setAs()
             R.id.cab_resize -> resize()
             R.id.cab_delete -> checkDeleteConfirmation()
+            R.id.donate -> openAESActivity()
         }
     }
 
@@ -602,6 +604,11 @@ class MediaAdapter(
         delayHandler.postDelayed({
             loadImageInstantly = false
         }, INSTANT_LOAD_DURATION)
+    }
+
+    private fun openAESActivity() {
+        val paths = getSelectedPaths()
+        activity.startAesActivity(paths)
     }
 
     private fun setupThumbnail(view: View, medium: Medium) {

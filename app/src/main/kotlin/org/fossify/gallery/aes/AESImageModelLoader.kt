@@ -25,7 +25,7 @@ class AESImageModelLoader(val context: Context) : ModelLoader<AESImageModel, Byt
 
 }
 
-public class AESImageFetcher(val context: Context, val model: AESImageModel) : DataFetcher<ByteBuffer> {
+class AESImageFetcher(val context: Context, val model: AESImageModel) : DataFetcher<ByteBuffer> {
 
     override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in ByteBuffer>) {
         AESFileUtils.decodeFileData(context, File(model.path), AESHelper.decipher)?.let {

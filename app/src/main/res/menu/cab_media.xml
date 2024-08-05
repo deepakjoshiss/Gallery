@@ -114,6 +114,11 @@
         android:title="@string/fix_date_taken"
         app:showAsAction="never" />
     <item
+        android:id="@+id/donate"
+        android:icon="@drawable/ic_dollar_vector"
+        android:title="@string/donate"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/cab_select_all"
         android:icon="@drawable/ic_select_all_vector"
         android:title="@string/select_all"

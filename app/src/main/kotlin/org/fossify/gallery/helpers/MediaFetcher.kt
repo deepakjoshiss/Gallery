@@ -14,6 +14,9 @@ import android.text.format.DateFormat
 import org.fossify.commons.extensions.*
 import org.fossify.commons.helpers.*
 import org.fossify.gallery.R
+import org.fossify.gallery.aes.AESHelper
+import org.fossify.gallery.aes.isAESImage
+import org.fossify.gallery.aes.isAESVideo
 import org.fossify.gallery.extensions.*
 import org.fossify.gallery.models.Medium
 import org.fossify.gallery.models.ThumbnailItem
@@ -319,7 +322,13 @@ class MediaFetcher(val context: Context) {
             var path = file.absolutePath
             var isPortrait = false
             val isImage = path.isImageFast()
-            val isVideo = if (isImage) false else path.isVideoFast()
+            val isAESImage = if (isImage) path.isAESImage() else false
+            val isAESVideo = if (isImage) false else path.isAESVideo()
+
+            if((isAESVideo || isAESImage) && !AESHelper.hasToken())
+                continue
+
+            val isVideo = isAESVideo || if (isImage) false else path.isVideoFast()
             val isGif = if (isImage || isVideo) false else path.isGif()
             val isRaw = if (isImage || isVideo || isGif) false else path.isRawFast()
             val isSvg = if (isImage || isVideo || isGif || isRaw) false else path.isSvg()
@@ -381,8 +390,9 @@ class MediaFetcher(val context: Context) {
                     media.add(this)
                 }
             } else {
+                val aesFileInfo = if(isAESVideo) AESHelper.mFileInfoCache[path] else null
                 var lastModified: Long
-                var newLastModified = lastModifieds.remove(path)
+                var newLastModified = if(isAESVideo) aesFileInfo?.lastMod else lastModifieds.remove(path)
                 if (newLastModified == null) {
                     newLastModified = if (getProperLastModified) {
                         file.lastModified()
@@ -393,9 +403,9 @@ class MediaFetcher(val context: Context) {
                 lastModified = newLastModified
 
                 var dateTaken = lastModified
-                val videoDuration = if (getVideoDurations && isVideo) context.getDuration(path) ?: 0 else 0
+                val videoDuration: Int = if (isAESVideo) aesFileInfo?.duration ?: 0 else if (getVideoDurations && isVideo) context.getDuration(path) ?: 0 else 0
 
-                if (getProperDateTaken) {
+                if (!isAESVideo && getProperDateTaken) {
                     var newDateTaken = dateTakens.remove(path)
                     if (newDateTaken == null) {
                         newDateTaken = if (getProperLastModified) {
