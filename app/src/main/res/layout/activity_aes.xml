@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?colorSurface"
+        app:navigationIcon="@drawable/ic_launcher_small"
+        app:title="Donate to Simple Tools" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:id="@+id/filepicker_holder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <FrameLayout
+                android:id="@+id/filepicker_files_holder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <org.fossify.commons.views.MyTextView
+                    android:id="@+id/filepicker_placeholder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:alpha="0.8"
+                    android:gravity="center"
+                    android:paddingStart="@dimen/activity_margin"
+                    android:paddingEnd="@dimen/activity_margin"
+                    android:text="@string/loading"
+                    android:textSize="@dimen/bigger_text_size"
+                    android:textStyle="italic" />
+
+                <com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
+                    android:id="@+id/filepicker_fastscroller"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <org.fossify.commons.views.MyRecyclerView
+                        android:id="@+id/filepicker_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layoutAnimation="@anim/anim_file_list"
+                        android:scrollbars="none"
+                        app:layoutManager="org.fossify.commons.views.MyLinearLayoutManager" />
+
+                </com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller>
+            </FrameLayout>
+        </FrameLayout>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/fab_action"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="48dp"
+            android:clickable="true"
+            android:elevation="2dp"
+            android:focusable="true"
+            android:foreground="@drawable/bg_list_item"
+            android:outlineSpotShadowColor="?colorPrimary"
+            android:visibility="gone"
+            app:cardBackgroundColor="?colorPrimary"
+            app:cardCornerRadius="100dp"
+            app:cardElevation="2dp"
+            app:cardMaxElevation="6dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:gravity="center"
+                android:minWidth="104dp"
+                android:minHeight="52dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/fab_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/sfpro_display_medium"
+                    android:paddingHorizontal="24dp"
+                    android:text="Move Here"
+                    android:textSize="18sp" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="20dp"
+                    android:alpha="0.25"
+                    android:background="@android:color/white" />
+
+                <ImageView
+                    android:id="@+id/cancel_action"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_list_item"
+                    android:clickable="true"
+                    android:scaleType="center"
+                    android:src="@drawable/ic_cross_vector" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <LinearLayout
+            android:id="@+id/list_empty_view"
+            android:visibility="gone"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:gravity="center_horizontal"
+            android:alpha="0.3"
+            android:layout_marginBottom="100dp"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content" >
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="match_parent"
+                app:tint="?attr/colorAccent"
+                android:scaleType="centerCrop"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_launcher_monochrome"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:letterSpacing="0.075"
+                android:textColor="?attr/colorAccent"
+                android:text="NO FILES HERE"
+                android:fontFamily="@font/sfpro_display_bold"
+                />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+
+        <!--    <include layout="@layout/password_classic_bottom" />-->
+
+    </FrameLayout>
+</LinearLayout>

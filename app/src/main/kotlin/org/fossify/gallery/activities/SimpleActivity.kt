@@ -13,11 +13,12 @@ import org.fossify.commons.extensions.scanPathRecursively
 import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.commons.helpers.isPiePlus
 import org.fossify.gallery.R
+import org.fossify.gallery.aes.BaseActivityOverride
 import org.fossify.gallery.extensions.addPathToDB
 import org.fossify.gallery.extensions.config
 import org.fossify.gallery.extensions.updateDirectoryPath
 
-open class SimpleActivity : BaseSimpleActivity() {
+open class SimpleActivity : BaseActivityOverride() {
     val observer = object : ContentObserver(null) {
         override fun onChange(selfChange: Boolean, uri: Uri?) {
             super.onChange(selfChange, uri)

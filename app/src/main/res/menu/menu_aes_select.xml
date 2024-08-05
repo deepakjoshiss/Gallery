@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="AppCompatResource">
+
+    <item
+        android:id="@+id/submenu"
+        android:icon="@drawable/ic_three_dots_vector"
+        android:title="Add"
+        app:showAsAction="always">
+
+        <menu>
+            <item
+                android:id="@+id/delete"
+                android:title="Delete" />
+
+            <item
+                android:id="@+id/decrypt"
+                android:title="Decrypt to" />
+
+            <item
+                android:id="@+id/move"
+                android:title="@string/move" />
+
+        </menu>
+    </item>
+
+</menu>

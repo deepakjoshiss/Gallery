@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="rounded_corner_radius_big">8dp</dimen>
+    <color name="aes_toolbar_color">#aa000000</color>
+    <color name="selected_tint_color">#88000000</color>
+    <color name="md_grey_900">#202020</color>
+    <color name="md_grey_900_dark">#111111</color>
+
+    <style name="styleCharacterPassword">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">6dp</item>
+    </style>
+
+    <style name="styleButtonPassword">
+        <item name="android:gravity">center</item>
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_margin">4dp</item>
+        <item name="android:layout_weight">0.3</item>
+    </style>
+
+    <style name="styleTextPassword">
+        <item name="android:textSize">30sp</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="styleBreadcrumbs" parent="TextAppearance.Material3.ActionBar.Title">
+        <item name="android:textSize">14sp</item>
+        <item name="fontFamily">@font/sfpro_display_medium</item>
+        <item name="android:ellipsize">middle</item>
+    </style>
+
+</resources>

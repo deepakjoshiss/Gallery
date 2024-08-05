@@ -114,6 +114,8 @@ dependencies {
     implementation(libs.apng)
     implementation(libs.avif.integration)
     implementation(libs.okio)
+    implementation(libs.kotlin.work.runtime)
+    implementation(libs.linkedhashmap)
     implementation(libs.picasso) {
         exclude(group = "com.squareup.okhttp3", module = "okhttp")
     }

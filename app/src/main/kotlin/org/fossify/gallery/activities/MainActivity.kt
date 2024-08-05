@@ -409,6 +409,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 R.id.column_count -> changeColumnCount()
                 R.id.set_as_default_folder -> setAsDefaultFolder()
                 R.id.more_apps_from_us -> launchMoreAppsFromUsIntent()
+                R.id.donate -> launchAESDonate()
                 R.id.settings -> launchSettings()
                 R.id.about -> launchAbout()
                 else -> return@setOnMenuItemClickListener false
@@ -433,6 +434,10 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     }
 
     private fun getRecyclerAdapter() = binding.directoriesGrid.adapter as? DirectoryAdapter
+
+    fun launchAESDonate() {
+        startAESActivity()
+    }
 
     private fun storeStateVariables() {
         mStoredTextColor = getProperTextColor()
@@ -986,6 +991,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         val android11Files = mLastMediaFetcher?.getAndroid11FolderMedia(getImagesOnly, getVideosOnly, favoritePaths, false, true, dateTakens)
         try {
             for (directory in dirs) {
+                println(">>>> dir ${directory.name}")
                 if (mShouldStopFetching || isDestroyed || isFinishing) {
                     return
                 }

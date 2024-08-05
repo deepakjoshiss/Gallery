@@ -837,12 +837,12 @@ class DirectoryAdapter(
                 dirLocation.setImageResource(if (directory.location == LOCATION_SD) org.fossify.commons.R.drawable.ic_sd_card_vector else org.fossify.commons.R.drawable.ic_usb_vector)
             }
 
-            photoCnt.text = directory.subfoldersMediaCount.toString()
+            photoCnt.text = directory.subfoldersMediaCount.toString() + " items"
             photoCnt.beVisibleIf(showMediaCount == FOLDER_MEDIA_CNT_LINE)
 
             if (limitFolderTitle) {
                 dirName.setSingleLine()
-                dirName.ellipsize = TextUtils.TruncateAt.MIDDLE
+//                dirName.ellipsize = TextUtils.TruncateAt.MIDDLE
             }
 
             var nameCount = directory.name

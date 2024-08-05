@@ -25,10 +25,14 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import com.bumptech.glide.Glide
+import org.fossify.commons.aes.AES_THUMB_EXT
 import org.fossify.commons.extensions.*
 import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.gallery.R
 import org.fossify.gallery.activities.VideoActivity
+import org.fossify.gallery.aes.AESHelper
+import org.fossify.gallery.aes.AESImageModel
+import org.fossify.gallery.aes.isAESVideo
 import org.fossify.gallery.databinding.PagerVideoItemBinding
 import org.fossify.gallery.extensions.config
 import org.fossify.gallery.extensions.hasNavBar
@@ -80,6 +84,7 @@ class VideoFragment : ViewPagerFragment(), TextureView.SurfaceTextureListener, S
     private lateinit var mCurrTimeView: TextView
     private lateinit var mPlayPauseButton: ImageView
     private lateinit var mSeekBar: SeekBar
+    private var mAESVideo = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val context = requireContext()
@@ -87,6 +92,7 @@ class VideoFragment : ViewPagerFragment(), TextureView.SurfaceTextureListener, S
         val arguments = requireArguments()
 
         mMedium = arguments.getSerializable(MEDIUM) as Medium
+        mAESVideo = mMedium.name.isAESVideo()
         mConfig = context.config
         binding = PagerVideoItemBinding.inflate(inflater, container, false).apply {
             panoramaOutline.setOnClickListener { openPanorama() }
@@ -166,7 +172,12 @@ class VideoFragment : ViewPagerFragment(), TextureView.SurfaceTextureListener, S
         }
 
         storeStateVariables()
-        Glide.with(context).load(mMedium.path).into(binding.videoPreview)
+        if(mAESVideo) {
+            val th =  mMedium.path.substring(0, mMedium.path.lastIndexOf('.')) + AES_THUMB_EXT
+            Glide.with(context).load(AESImageModel(th)).into(binding.videoPreview)
+        } else {
+            Glide.with(context).load(mMedium.path).into(binding.videoPreview)
+        }
 
         // setMenuVisibility is not called at VideoActivity (third party intent)
         if (!mIsFragmentVisible && activity is VideoActivity) {
@@ -368,7 +379,8 @@ class VideoFragment : ViewPagerFragment(), TextureView.SurfaceTextureListener, S
             return
         }
 
-        val factory = DataSource.Factory { fileDataSource }
+        val factory = if (mAESVideo)
+            AESHelper.createDataSourceFactory(null) else DataSource.Factory { fileDataSource }
         val mediaSource: MediaSource = ProgressiveMediaSource.Factory(factory)
             .createMediaSource(MediaItem.fromUri(fileDataSource.uri!!))
 
@@ -704,12 +716,18 @@ class VideoFragment : ViewPagerFragment(), TextureView.SurfaceTextureListener, S
     }
 
     private fun setupVideoDuration() {
-        ensureBackgroundThread {
-            mDuration = context?.getDuration(mMedium.path) ?: 0
+        if (mAESVideo) {
+            mDuration = mMedium.videoDuration / 1000
+            setupTimeHolder()
+            setPosition(0)
+        } else {
+            ensureBackgroundThread {
+                mDuration = context?.getDuration(mMedium.path) ?: 0
 
-            activity?.runOnUiThread {
-                setupTimeHolder()
-                setPosition(0)
+                activity?.runOnUiThread {
+                    setupTimeHolder()
+                    setPosition(0)
+                }
             }
         }
     }

@@ -43,6 +43,7 @@ import it.sephiroth.android.library.exif2.ExifInterface
 import org.apache.sanselan.common.byteSources.ByteSourceInputStream
 import org.apache.sanselan.formats.jpeg.JpegImageParser
 import org.fossify.commons.activities.BaseSimpleActivity
+import org.fossify.commons.aes.AES_IMAGE_EXT
 import org.fossify.commons.extensions.*
 import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.commons.helpers.isRPlus
@@ -51,6 +52,7 @@ import org.fossify.gallery.activities.PhotoActivity
 import org.fossify.gallery.activities.PhotoVideoActivity
 import org.fossify.gallery.activities.ViewPagerActivity
 import org.fossify.gallery.adapters.PortraitPhotosAdapter
+import org.fossify.gallery.aes.AESImageModel
 import org.fossify.gallery.databinding.PagerPhotoItemBinding
 import org.fossify.gallery.extensions.config
 import org.fossify.gallery.extensions.saveRotatedImageToFile
@@ -446,11 +448,12 @@ class PhotoFragment : ViewPagerFragment() {
 
     private fun loadWithGlide(path: String, addZoomableView: Boolean) {
         val priority = if (mIsFragmentVisible) Priority.IMMEDIATE else Priority.NORMAL
+        val isAES = path.endsWith(AES_IMAGE_EXT)
         val options = RequestOptions()
             .signature(mMedium.getKey())
             .format(DecodeFormat.PREFER_ARGB_8888)
             .priority(priority)
-            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+            .diskCacheStrategy(if (isAES) DiskCacheStrategy.NONE else DiskCacheStrategy.RESOURCE)
             .fitCenter()
 
         if (mCurrentRotationDegrees != 0) {
@@ -459,7 +462,7 @@ class PhotoFragment : ViewPagerFragment() {
         }
 
         Glide.with(requireContext())
-            .load(path)
+            .load(if (isAES) AESImageModel(path) else path)
             .apply(options)
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>, isFirstResource: Boolean): Boolean {
