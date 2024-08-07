@@ -118,7 +118,6 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
         setupOptionsMenu()
         refreshMenuItems()
-        launchAESDonate()
         updateMaterialActivityViews(
             binding.directoriesCoordinator,
             binding.directoriesGrid,
