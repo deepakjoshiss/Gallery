@@ -95,10 +95,12 @@ object AESUtils {
         return arr;
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     fun createKeySpec(salt: ByteArray, passwordChar: CharArray, longKey: Boolean = false): SecretKeySpec {
         val pbKeySpec = PBEKeySpec(passwordChar, salt, PASS_KEY_ITER, PASS_KEY_LENGTH) //1324 iterations
         val secretKeyFactory = SecretKeyFactory.getInstance(PASS_KEY_TYPE)
         val keyBytes = secretKeyFactory.generateSecret(pbKeySpec).encoded
+//        println(">> key is ${passwordChar.concatToString()} ${keyBytes.toHexString(HexFormat.Default)}")
         return SecretKeySpec(keyBytes, PASS_KEY_ALGO)
     }
 

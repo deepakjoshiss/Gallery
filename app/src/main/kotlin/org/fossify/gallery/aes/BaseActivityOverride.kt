@@ -2,16 +2,14 @@ package org.fossify.gallery.aes
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import org.fossify.commons.activities.AboutActivity
 import org.fossify.commons.activities.BaseSimpleActivity
 import org.fossify.commons.aes.AES_META_EXT
 import org.fossify.commons.aes.AES_THUMB_EXT
 import org.fossify.commons.dialogs.FileConflictDialog
 import org.fossify.commons.extensions.*
-import org.fossify.commons.helpers.CONFLICT_KEEP_BOTH
-import org.fossify.commons.helpers.CONFLICT_SKIP
-import org.fossify.commons.helpers.ensureBackgroundThread
-import org.fossify.commons.helpers.getConflictResolution
+import org.fossify.commons.helpers.*
 import org.fossify.commons.models.FileDirItem
 import org.fossify.gallery.R
 import org.fossify.gallery.aes.AESActivity
@@ -30,6 +28,12 @@ abstract class BaseActivityOverride : BaseSimpleActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         handleSendIntent()
+    }
+
+    override fun setContentView(view: View?) {
+        if(!showTransparentTop)
+            view?.fitsSystemWindows = true
+        super.setContentView(view)
     }
 
     fun handleSendIntent() {

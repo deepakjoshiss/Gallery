@@ -11,8 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?colorSurface"
-        app:navigationIcon="@drawable/ic_launcher_small"
-        app:title="Donate to Simple Tools" />
+        android:paddingStart="8dp"
+        app:titleMarginStart="0dp"
+        app:navigationIcon="@drawable/ic_launcher_inset"
+        app:title="Donate" />
 
     <FrameLayout
         android:layout_width="match_parent"

@@ -236,6 +236,13 @@ class ClassicLockView(context: Context?, attributeSet: AttributeSet?) :
 
     // android.text.TextWatcher
     override fun onTextChanged(charSequence: CharSequence, i: Int, i2: Int, i3: Int) {
+        if(charSequence.isNotEmpty()) {
+            mEPass?.letterSpacing = 0.2f
+            mEPass?.textSize = 22f
+        } else {
+            mEPass?.textSize = 16f
+            mEPass?.letterSpacing = 0.05f
+        }
         mPassCallback!!.onTextChange(mEPass!!.text.toString(), "")
     }
 

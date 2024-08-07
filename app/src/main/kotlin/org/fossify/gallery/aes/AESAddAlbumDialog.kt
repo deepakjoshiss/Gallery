@@ -8,9 +8,8 @@ import androidx.appcompat.app.AlertDialog
 import org.fossify.commons.activities.BaseSimpleActivity
 import org.fossify.commons.extensions.getAlertDialogBuilder
 import org.fossify.gallery.R
-import org.fossify.gallery.aes.AESActivity
 
-class AESDonateDialog(
+class AESAddAlbumDialog(
     val activity: BaseSimpleActivity,
     val msg: String = "Donate to Simple Tools",
     val mListener: TextSubmitCallback? = null

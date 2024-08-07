@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.ViewGroup
 import android.widget.RelativeLayout
+import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -78,6 +79,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         isMaterialActivity = true
+        showTransparentTop = true
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
@@ -326,7 +328,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
     }
 
     private fun updateMenuColors() {
-        updateStatusbarColor(getProperBackgroundColor())
+        updateStatusbarColor(ColorUtils.setAlphaComponent( getProperBackgroundColor(), 100))
         binding.mediaMenu.updateColors()
     }
 

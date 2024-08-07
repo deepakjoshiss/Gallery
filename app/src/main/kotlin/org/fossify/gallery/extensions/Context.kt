@@ -3,6 +3,7 @@ package org.fossify.gallery.extensions
 import android.annotation.SuppressLint
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
@@ -11,6 +12,7 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.PictureDrawable
 import android.media.AudioManager
 import android.os.Process
+import android.provider.MediaStore
 import android.provider.MediaStore.Files
 import android.provider.MediaStore.Images
 import android.widget.ImageView
@@ -1125,4 +1127,49 @@ fun Context.getFileDateTaken(path: String): Long {
     }
 
     return 0L
+}
+
+fun Context.getCursorAlbums(): ArrayList<Cursor>? {
+    try {
+        val strArr = arrayOf("bucket_id", "bucket_display_name", "_data", "_id", "date_modified", "_size")
+        val strArr2 = arrayOf("bucket_id", "bucket_display_name", "_data", "_id", "date_modified", "_size", "duration")
+        val arrayList = java.util.ArrayList<Cursor>()
+        val query: Cursor? = contentResolver.query(
+            Images.Media.EXTERNAL_CONTENT_URI,
+            strArr,
+            null,
+            null,
+            "bucket_display_name asc, datetaken DESC "
+        )
+        if (query != null && query.count > 0) {
+            query.use {
+                if (query.moveToFirst()) {
+                    do {
+                        val path = query.getStringValue(Images.Media.DATA)
+                        println(" >>>> album $path")
+                    } while (query.moveToNext())
+                }
+            }
+        }
+        val query2: Cursor? = contentResolver.query(
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+            strArr2,
+            null,
+            null,
+            "bucket_display_name asc, datetaken DESC "
+        )
+        if (query2 != null && query2.count > 0) {
+            query2.use {
+                if (query2.moveToFirst()) {
+                    do {
+                        val path = query2.getStringValue(Images.Media.DATA)
+                        println(" >>>> album $path")
+                    } while (query2.moveToNext())
+                }
+            }
+        }
+        return arrayList
+    } catch (unused: Exception) {
+        return null
+    }
 }

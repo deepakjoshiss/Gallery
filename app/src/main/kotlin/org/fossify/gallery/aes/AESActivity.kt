@@ -16,7 +16,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.work.*
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
@@ -34,7 +33,6 @@ import org.fossify.gallery.R
 import org.fossify.gallery.activities.MainActivity
 import org.fossify.gallery.activities.SimpleActivity
 import org.fossify.gallery.activities.ViewPagerActivity
-import org.fossify.gallery.aes.*
 import org.fossify.gallery.extensions.launchAbout
 import org.fossify.gallery.helpers.*
 import org.fossify.gallery.databinding.ActivityAesBinding
@@ -65,8 +63,8 @@ class AESActivity : SimpleActivity(), OnClickListener {
         setContentView(binding.root)
         mPathsToMove = intent.getStringArrayListExtra("paths")?.also { mActionType = AESTaskType.ENCRYPT }
 
-        if (BuildConfig.DEBUG) {
-            val dec = AESUtils.decryptVault(Gson().fromJson(aesConfig.aesVault, AESVault::class.java), "4399")
+        if (false && BuildConfig.DEBUG && aesConfig.aesVault.isNotEmpty()) {
+            val dec = AESUtils.decryptVault(Gson().fromJson(aesConfig.aesVault, AESVault::class.java), "1111")
             if (dec == null) {
                 println(">>>> wrong pass}")
                 launchAbout()
@@ -189,7 +187,7 @@ class AESActivity : SimpleActivity(), OnClickListener {
             }
 
         }
-        AESDonateDialog(this, "Album Name", callback)
+        AESAddAlbumDialog(this, "Album Name", callback)
     }
 
     private fun resetVault(): Boolean {

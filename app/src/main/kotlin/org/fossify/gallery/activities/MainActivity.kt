@@ -40,6 +40,8 @@ import org.fossify.gallery.jobs.NewPhotoFetcher
 import org.fossify.gallery.models.Directory
 import org.fossify.gallery.models.Medium
 import java.io.*
+import kotlin.math.max
+import kotlin.math.min
 
 class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     companion object {
@@ -88,6 +90,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         isMaterialActivity = true
+        showTransparentTop = true
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         appLaunched(BuildConfig.APPLICATION_ID)
@@ -115,7 +118,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
         setupOptionsMenu()
         refreshMenuItems()
-
+        launchAESDonate()
         updateMaterialActivityViews(
             binding.directoriesCoordinator,
             binding.directoriesGrid,
@@ -392,6 +395,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 launchSearchActivity()
             }
         }
+        recyclerViewTrack()
 
         binding.mainMenu.onSearchTextChangedListener = { text ->
             setupAdapter(mDirsIgnoringSearch, text)
@@ -422,6 +426,17 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             }
             return@setOnMenuItemClickListener true
         }
+    }
+
+    fun recyclerViewTrack() {
+        binding.directoriesGrid.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            var scrollY = 0
+            var padding = binding.directoriesGrid.paddingTop * 0.5f
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                scrollY += dy
+                binding.mainMenu.translationY = max(0f , padding - scrollY)
+            }
+        })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

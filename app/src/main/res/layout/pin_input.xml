@@ -2,49 +2,44 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/viewInput"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp">
+    android:layout_height="?actionBarSize"
+    android:layout_marginHorizontal="@dimen/activity_margin"
+    android:layout_marginBottom="16dp"
+    android:background="@drawable/ripple_all_corners_surface"
+    android:paddingHorizontal="@dimen/activity_margin">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginLeft="50dp"
-        android:padding="4dp"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_dollar_vector" />
+    <TextView
+        android:layout_width="24dp"
+        android:layout_height="match_parent"
+        android:fontFamily="@font/sfpro"
+        android:gravity="center"
+        android:text="$"
+        android:textColor="?colorPrimary"
+        android:textFontWeight="600"
+        android:textSize="24sp" />
 
     <EditText
         android:id="@+id/ePass"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="34dp"
         android:background="@android:color/transparent"
         android:focusable="false"
-        android:gravity="center"
-        android:letterSpacing="0.2"
-        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:fontFamily="@font/sfpro"
+        android:hint="Enter Amount"
+        android:letterSpacing="0.05"
         android:textColor="@android:color/white"
-        android:textSize="40sp"
-        android:textStyle="bold" />
+        android:textFontWeight="600"
+        android:textSize="16sp" />
 
     <ImageView
         android:id="@+id/ivBackSpace"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        android:layout_marginEnd="25dp"
-        android:layout_marginBottom="-14dp"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:padding="24dp"
-        android:src="@drawable/ic_clear_vector" />
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        android:background="@drawable/ripple_all_corners"
+        android:paddingHorizontal="16dp"
+        android:src="@drawable/ic_clear_vector"
+        android:tint="?colorPrimary" />
 
-    <View
-        android:id="@+id/dividerInput"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_gravity="bottom"
-        android:layout_marginLeft="50dp"
-        android:layout_marginRight="50dp"
-        android:background="#fff" />
 </FrameLayout>
