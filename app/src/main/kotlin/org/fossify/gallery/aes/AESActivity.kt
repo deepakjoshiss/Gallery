@@ -347,7 +347,7 @@ class AESActivity : SimpleActivity(), OnClickListener {
                     if (startPin) {
                         if (text == DEFAULT_PIN) {
                             view.resetInput()
-                            view.setLabel("Please Enter Pin")
+                            view.setLabel("Enter New Amount")
                             startPin = false;
                         } else {
                             launchAbout()
@@ -356,14 +356,14 @@ class AESActivity : SimpleActivity(), OnClickListener {
                     }
 
                     if (text.isEmpty() || text.length != DEFAULT_PIN_LENGTH) {
-                        toast("Pin should be $DEFAULT_PIN_LENGTH digits long")
+                        toast("Amount should be $DEFAULT_PIN_LENGTH digits long")
                         return
                     }
 
                     if (pinValue.isNullOrEmpty()) {
                         pinValue = text
                         view.resetInput()
-                        view.setLabel("Please Enter Pin Again")
+                        view.setLabel("Enter Amount Again")
                         return
                     }
 
@@ -372,7 +372,7 @@ class AESActivity : SimpleActivity(), OnClickListener {
                         setUpPassView(text)
                         return
                     }
-                    toast("Pin did not match")
+                    toast("Amount did not match")
                     return
                 }
 

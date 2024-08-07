@@ -46,7 +46,6 @@ class ClassicLockView(context: Context?, attributeSet: AttributeSet?) :
     var mTvChars: ArrayList<TextView> = ArrayList()
     var mTvNumbers: ArrayList<TextView?> = ArrayList()
     var mGo: ImageView? = null
-    private var mLabel: TextView? = null
 
     private var mPassCallback: TextSubmitCallback? = null
 
@@ -116,7 +115,6 @@ class ClassicLockView(context: Context?, attributeSet: AttributeSet?) :
         mTvChars.add(findViewById<View>(R.id.tvChar8) as TextView)
         mTvChars.add(findViewById<View>(R.id.tvChar9) as TextView)
 
-        mLabel = findViewById(R.id.tvLabel)
         mIvBackSpace = findViewById(R.id.ivBackSpace)
         mIvBackSpace?.setOnClickListener(this)
 
@@ -256,7 +254,7 @@ class ClassicLockView(context: Context?, attributeSet: AttributeSet?) :
     }
 
     fun setLabel(label: String?) {
-        mLabel!!.text = label
+        mEPass?.setHint(label)
     }
 
     fun setTextColor(i: Int) {

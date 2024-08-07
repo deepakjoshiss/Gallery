@@ -13,3 +13,4 @@ keystore.properties
 fastlane/fastlane.json
 Gemfile
 Gemfile.lock
+/sg-release.jks
