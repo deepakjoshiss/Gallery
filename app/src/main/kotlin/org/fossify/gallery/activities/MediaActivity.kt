@@ -1,14 +1,13 @@
 package org.fossify.gallery.activities
 
-import android.app.Activity
 import android.app.WallpaperManager
 import android.content.Intent
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.view.ViewGroup
 import android.widget.RelativeLayout
+import androidx.core.net.toUri
 import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,11 +15,43 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
-import org.fossify.commons.dialogs.ConfirmationDialog
 import org.fossify.commons.dialogs.CreateNewFolderDialog
 import org.fossify.commons.dialogs.RadioGroupDialog
-import org.fossify.commons.extensions.*
-import org.fossify.commons.helpers.*
+import org.fossify.commons.extensions.appLockManager
+import org.fossify.commons.extensions.areSystemAnimationsEnabled
+import org.fossify.commons.extensions.beGone
+import org.fossify.commons.extensions.beVisible
+import org.fossify.commons.extensions.beVisibleIf
+import org.fossify.commons.extensions.deleteFiles
+import org.fossify.commons.extensions.getDoesFilePathExist
+import org.fossify.commons.extensions.getFilenameFromPath
+import org.fossify.commons.extensions.getIsPathDirectory
+import org.fossify.commons.extensions.getLatestMediaByDateId
+import org.fossify.commons.extensions.getLatestMediaId
+import org.fossify.commons.extensions.getProperBackgroundColor
+import org.fossify.commons.extensions.getProperPrimaryColor
+import org.fossify.commons.extensions.getProperTextColor
+import org.fossify.commons.extensions.getTimeFormat
+import org.fossify.commons.extensions.handleHiddenFolderPasswordProtection
+import org.fossify.commons.extensions.handleLockedFolderOpening
+import org.fossify.commons.extensions.hideKeyboard
+import org.fossify.commons.extensions.isExternalStorageManager
+import org.fossify.commons.extensions.isGone
+import org.fossify.commons.extensions.isMediaFile
+import org.fossify.commons.extensions.isVideoFast
+import org.fossify.commons.extensions.isVisible
+import org.fossify.commons.extensions.recycleBinPath
+import org.fossify.commons.extensions.showErrorToast
+import org.fossify.commons.extensions.toast
+import org.fossify.commons.extensions.viewBinding
+import org.fossify.commons.helpers.FAVORITES
+import org.fossify.commons.helpers.IS_FROM_GALLERY
+import org.fossify.commons.helpers.REQUEST_EDIT_IMAGE
+import org.fossify.commons.helpers.SORT_BY_RANDOM
+import org.fossify.commons.helpers.VIEW_TYPE_GRID
+import org.fossify.commons.helpers.VIEW_TYPE_LIST
+import org.fossify.commons.helpers.ensureBackgroundThread
+import org.fossify.commons.helpers.isRPlus
 import org.fossify.commons.models.FileDirItem
 import org.fossify.commons.models.RadioItem
 import org.fossify.commons.views.MyGridLayoutManager
@@ -30,9 +61,49 @@ import org.fossify.gallery.adapters.MediaAdapter
 import org.fossify.gallery.asynctasks.GetMediaAsynctask
 import org.fossify.gallery.databases.GalleryDatabase
 import org.fossify.gallery.databinding.ActivityMediaBinding
-import org.fossify.gallery.dialogs.*
-import org.fossify.gallery.extensions.*
-import org.fossify.gallery.helpers.*
+import org.fossify.gallery.dialogs.ChangeGroupingDialog
+import org.fossify.gallery.dialogs.ChangeSortingDialog
+import org.fossify.gallery.dialogs.ChangeViewTypeDialog
+import org.fossify.gallery.dialogs.FilterMediaDialog
+import org.fossify.gallery.dialogs.GrantAllFilesDialog
+import org.fossify.gallery.extensions.config
+import org.fossify.gallery.extensions.deleteDBPath
+import org.fossify.gallery.extensions.directoryDB
+import org.fossify.gallery.extensions.emptyAndDisableTheRecycleBin
+import org.fossify.gallery.extensions.emptyTheRecycleBin
+import org.fossify.gallery.extensions.favoritesDB
+import org.fossify.gallery.extensions.getCachedMedia
+import org.fossify.gallery.extensions.getHumanizedFilename
+import org.fossify.gallery.extensions.isDownloadsFolder
+import org.fossify.gallery.extensions.launchAbout
+import org.fossify.gallery.extensions.launchCamera
+import org.fossify.gallery.extensions.launchSettings
+import org.fossify.gallery.extensions.mediaDB
+import org.fossify.gallery.extensions.movePathsInRecycleBin
+import org.fossify.gallery.extensions.openPath
+import org.fossify.gallery.extensions.openRecycleBin
+import org.fossify.gallery.extensions.restoreRecycleBinPaths
+import org.fossify.gallery.extensions.showRecycleBinEmptyingDialog
+import org.fossify.gallery.extensions.tryDeleteFileDirItem
+import org.fossify.gallery.extensions.updateWidgets
+import org.fossify.gallery.helpers.DIRECTORY
+import org.fossify.gallery.helpers.GET_ANY_INTENT
+import org.fossify.gallery.helpers.GET_IMAGE_INTENT
+import org.fossify.gallery.helpers.GET_VIDEO_INTENT
+import org.fossify.gallery.helpers.GridSpacingItemDecoration
+import org.fossify.gallery.helpers.IS_IN_RECYCLE_BIN
+import org.fossify.gallery.helpers.MAX_COLUMN_COUNT
+import org.fossify.gallery.helpers.MediaFetcher
+import org.fossify.gallery.helpers.PATH
+import org.fossify.gallery.helpers.PICKED_PATHS
+import org.fossify.gallery.helpers.RECYCLE_BIN
+import org.fossify.gallery.helpers.SET_WALLPAPER_INTENT
+import org.fossify.gallery.helpers.SHOW_ALL
+import org.fossify.gallery.helpers.SHOW_FAVORITES
+import org.fossify.gallery.helpers.SHOW_RECYCLE_BIN
+import org.fossify.gallery.helpers.SHOW_TEMP_HIDDEN_DURATION
+import org.fossify.gallery.helpers.SKIP_AUTHENTICATION
+import org.fossify.gallery.helpers.SLIDESHOW_START_ON_ENTER
 import org.fossify.gallery.interfaces.MediaOperationsListener
 import org.fossify.gallery.models.Medium
 import org.fossify.gallery.models.ThumbnailItem
@@ -51,8 +122,8 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
     private var mAllowPickingMultiple = false
     private var mShowAll = false
     private var mLoadedInitialPhotos = false
+    private var mShowLoadingIndicator = true
     private var mWasFullscreenViewOpen = false
-    private var mWasUpgradedFromFreeShown = false
     private var mLastSearchedText = ""
     private var mLatestMediaId = 0L
     private var mLatestMediaDateId = 0L
@@ -102,7 +173,12 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
         setupOptionsMenu()
         refreshMenuItems()
         storeStateVariables()
-        updateMaterialActivityViews(binding.mediaCoordinator, binding.mediaGrid, useTransparentNavigation = !config.scrollHorizontally, useTopSearchMenu = true)
+        updateMaterialActivityViews(
+            mainCoordinatorLayout = binding.mediaCoordinator,
+            nestedView = binding.mediaGrid,
+            useTransparentNavigation = !config.scrollHorizontally,
+            useTopSearchMenu = true
+        )
 
         if (mShowAll) {
             registerFileUpdateListener()
@@ -168,6 +244,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
             timeFormat = getTimeFormat()
         }
 
+        binding.loadingIndicator.setIndicatorColor(getProperPrimaryColor())
         binding.mediaEmptyTextPlaceholder.setTextColor(getProperTextColor())
         binding.mediaEmptyTextPlaceholder2.setTextColor(getProperPrimaryColor())
         binding.mediaEmptyTextPlaceholder2.bringToFront()
@@ -232,13 +309,17 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
         if (binding.mediaMenu.isSearchOpen) {
             binding.mediaMenu.closeSearch()
         } else {
+            if (config.showAll) {
+                appLockManager.lock()
+            }
+
             super.onBackPressed()
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
         if (requestCode == REQUEST_EDIT_IMAGE) {
-            if (resultCode == Activity.RESULT_OK && resultData != null) {
+            if (resultCode == RESULT_OK && resultData != null) {
                 mMedia.clear()
                 refreshItems()
             }
@@ -247,7 +328,8 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
     }
 
     private fun refreshMenuItems() {
-        val isDefaultFolder = !config.defaultFolder.isEmpty() && File(config.defaultFolder).compareTo(File(mPath)) == 0
+        val isDefaultFolder = !config.defaultFolder.isEmpty()
+                && File(config.defaultFolder).compareTo(File(mPath)) == 0
 
         binding.mediaMenu.getToolbar().menu.apply {
             findItem(R.id.group).isVisible = !config.scrollHorizontally
@@ -259,11 +341,13 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
             findItem(R.id.folder_view).isVisible = mShowAll
             findItem(R.id.open_camera).isVisible = mShowAll
             findItem(R.id.about).isVisible = mShowAll
-            findItem(R.id.create_new_folder).isVisible = !mShowAll && mPath != RECYCLE_BIN && mPath != FAVORITES
+            findItem(R.id.create_new_folder).isVisible =
+                !mShowAll && mPath != RECYCLE_BIN && mPath != FAVORITES
             findItem(R.id.open_recycle_bin).isVisible = config.useRecycleBin && mPath != RECYCLE_BIN
 
             findItem(R.id.temporarily_show_hidden).isVisible = !config.shouldShowHidden
-            findItem(R.id.stop_showing_hidden).isVisible = (!isRPlus() || isExternalStorageManager()) && config.temporarilyShowHidden
+            findItem(R.id.stop_showing_hidden).isVisible =
+                (!isRPlus() || isExternalStorageManager()) && config.temporarilyShowHidden
 
             findItem(R.id.set_as_default_folder).isVisible = !isDefaultFolder
             findItem(R.id.unset_as_default_folder).isVisible = isDefaultFolder
@@ -350,12 +434,16 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
     private fun searchQueryChanged(text: String) {
         ensureBackgroundThread {
             try {
-                val filtered = mMedia.filter { it is Medium && it.name.contains(text, true) } as ArrayList
+                val filtered = mMedia
+                    .filter { it is Medium && it.name.contains(text, true) } as ArrayList
                 filtered.sortBy { it is Medium && !it.name.startsWith(text, true) }
-                val grouped = MediaFetcher(applicationContext).groupMedia(filtered as ArrayList<Medium>, mPath)
+                val grouped = MediaFetcher(applicationContext).groupMedia(
+                    media = filtered as ArrayList<Medium>, path = mPath
+                )
                 runOnUiThread {
                     if (grouped.isEmpty()) {
-                        binding.mediaEmptyTextPlaceholder.text = getString(org.fossify.commons.R.string.no_items_found)
+                        binding.mediaEmptyTextPlaceholder.text =
+                            getString(org.fossify.commons.R.string.no_items_found)
                         binding.mediaEmptyTextPlaceholder.beVisible()
                         binding.mediaFastscroller.beGone()
                     } else {
@@ -372,35 +460,35 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
     }
 
     private fun tryLoadGallery() {
-        handlePermission(getPermissionToRequest()) {
-            if (it) {
-                val dirName = when {
-                    mPath == FAVORITES -> getString(org.fossify.commons.R.string.favorites)
-                    mPath == RECYCLE_BIN -> getString(org.fossify.commons.R.string.recycle_bin)
-                    mPath == config.OTGPath -> getString(org.fossify.commons.R.string.usb)
-                    else -> getHumanizedFilename(mPath)
-                }
-
-                val searchHint = if (mShowAll) {
-                    getString(org.fossify.commons.R.string.search_files)
-                } else {
-                    getString(org.fossify.commons.R.string.search_in_placeholder, dirName)
-                }
-
-                binding.mediaMenu.updateHintText(searchHint)
-                if (!mShowAll) {
-                    binding.mediaMenu.toggleForceArrowBackIcon(true)
-                    binding.mediaMenu.onNavigateBackClickListener = {
-                        onBackPressed()
-                    }
-                }
-
-                getMedia()
-                setupLayoutManager()
-            } else {
-                toast(org.fossify.commons.R.string.no_storage_permissions)
-                finish()
+        requestMediaPermissions {
+            val dirName = when (mPath) {
+                FAVORITES -> getString(org.fossify.commons.R.string.favorites)
+                RECYCLE_BIN -> getString(org.fossify.commons.R.string.recycle_bin)
+                config.OTGPath -> getString(org.fossify.commons.R.string.usb)
+                else -> getHumanizedFilename(mPath)
             }
+
+            val searchHint = if (mShowAll) {
+                getString(org.fossify.commons.R.string.search_files)
+            } else {
+                getString(org.fossify.commons.R.string.search_in_placeholder, dirName)
+            }
+
+            binding.mediaMenu.updateHintText(searchHint)
+            if (!mShowAll) {
+                binding.mediaMenu.toggleForceArrowBackIcon(true)
+                binding.mediaMenu.onNavigateBackClickListener = {
+                    onBackPressed()
+                }
+            }
+
+            if (mShowLoadingIndicator) {
+                binding.loadingIndicator.show()
+                mShowLoadingIndicator = false
+            }
+
+            getMedia()
+            setupLayoutManager()
         }
     }
 
@@ -415,8 +503,13 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
         if (currAdapter == null) {
             initZoomListener()
             MediaAdapter(
-                this, mMedia.clone() as ArrayList<ThumbnailItem>, this, mIsGetImageIntent || mIsGetVideoIntent || mIsGetAnyIntent,
-                mAllowPickingMultiple, mPath, binding.mediaGrid
+                activity = this,
+                media = mMedia.clone() as ArrayList<ThumbnailItem>,
+                listener = this,
+                isAGetIntent = mIsGetImageIntent || mIsGetVideoIntent || mIsGetAnyIntent,
+                allowMultiplePicks = mAllowPickingMultiple,
+                path = mPath,
+                recyclerView = binding.mediaGrid
             ) {
                 if (it is Medium && !isFinishing) {
                     itemClicked(it.path)
@@ -583,7 +676,13 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
 
     private fun startAsyncTask() {
         mCurrAsyncTask?.stopFetching()
-        mCurrAsyncTask = GetMediaAsynctask(applicationContext, mPath, mIsGetImageIntent, mIsGetVideoIntent, mShowAll) {
+        mCurrAsyncTask = GetMediaAsynctask(
+            context = applicationContext,
+            mPath = mPath,
+            isPickImage = mIsGetImageIntent,
+            isPickVideo = mIsGetVideoIntent,
+            showAll = mShowAll
+        ) {
             ensureBackgroundThread {
                 val oldMedia = mMedia.clone() as ArrayList<ThumbnailItem>
                 val newMedia = it
@@ -592,14 +691,17 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
 
                     // remove cached files that are no longer valid for whatever reason
                     val newPaths = newMedia.mapNotNull { it as? Medium }.map { it.path }
-                    oldMedia.mapNotNull { it as? Medium }.filter { !newPaths.contains(it.path) }.forEach {
-                        if (mPath == FAVORITES && getDoesFilePathExist(it.path)) {
-                            favoritesDB.deleteFavoritePath(it.path)
-                            mediaDB.updateFavorite(it.path, false)
-                        } else {
-                            mediaDB.deleteMediumPath(it.path)
+                    oldMedia
+                        .mapNotNull { it as? Medium }
+                        .filter { !newPaths.contains(it.path) }
+                        .forEach {
+                            if (mPath == FAVORITES && getDoesFilePathExist(it.path)) {
+                                favoritesDB.deleteFavoritePath(it.path)
+                                mediaDB.updateFavorite(it.path, false)
+                            } else {
+                                mediaDB.deleteMediumPath(it.path)
+                            }
                         }
-                    }
                 } catch (e: Exception) {
                 }
             }
@@ -609,7 +711,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
     }
 
     private fun isDirEmpty(): Boolean {
-        return if (mMedia.size <= 0 && config.filterMedia > 0) {
+        return if (mMedia.isEmpty() && config.filterMedia > 0) {
             if (mPath != FAVORITES && mPath != RECYCLE_BIN) {
                 deleteDirectoryIfEmpty()
                 deleteDBDirectory()
@@ -684,10 +786,16 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
         val layoutManager = binding.mediaGrid.layoutManager as MyGridLayoutManager
         if (config.scrollHorizontally) {
             layoutManager.orientation = RecyclerView.HORIZONTAL
-            binding.mediaRefreshLayout.layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            binding.mediaRefreshLayout.layoutParams = RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
         } else {
             layoutManager.orientation = RecyclerView.VERTICAL
-            binding.mediaRefreshLayout.layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            binding.mediaRefreshLayout.layoutParams = RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
         }
 
         layoutManager.spanCount = config.mediaColumnCnt
@@ -707,7 +815,10 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
         val layoutManager = binding.mediaGrid.layoutManager as MyGridLayoutManager
         layoutManager.spanCount = 1
         layoutManager.orientation = RecyclerView.VERTICAL
-        binding.mediaRefreshLayout.layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        binding.mediaRefreshLayout.layoutParams = RelativeLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
         mZoomListener = null
     }
 
@@ -720,11 +831,19 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
 
             var currentGridDecoration: GridSpacingItemDecoration? = null
             if (binding.mediaGrid.itemDecorationCount > 0) {
-                currentGridDecoration = binding.mediaGrid.getItemDecorationAt(0) as GridSpacingItemDecoration
+                currentGridDecoration =
+                    binding.mediaGrid.getItemDecorationAt(0) as GridSpacingItemDecoration
                 currentGridDecoration.items = media
             }
 
-            val newGridDecoration = GridSpacingItemDecoration(spanCount, spacing, config.scrollHorizontally, config.fileRoundedCorners, media, useGridPosition)
+            val newGridDecoration = GridSpacingItemDecoration(
+                spanCount = spanCount,
+                spacing = spacing,
+                isScrollingHorizontally = config.scrollHorizontally,
+                addSideSpacing = config.fileRoundedCorners,
+                items = media,
+                useGridPosition = useGridPosition
+            )
             if (currentGridDecoration.toString() != newGridDecoration.toString()) {
                 if (currentGridDecoration != null) {
                     binding.mediaGrid.removeItemDecoration(currentGridDecoration)
@@ -761,7 +880,14 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
     private fun changeColumnCount() {
         val items = ArrayList<RadioItem>()
         for (i in 1..MAX_COLUMN_COUNT) {
-            items.add(RadioItem(i, resources.getQuantityString(org.fossify.commons.R.plurals.column_counts, i, i)))
+            items.add(
+                RadioItem(
+                    id = i,
+                    title = resources.getQuantityString(
+                        org.fossify.commons.R.plurals.column_counts, i, i
+                    )
+                )
+            )
         }
 
         val currentColumnCount = (binding.mediaGrid.layoutManager as MyGridLayoutManager).spanCount
@@ -813,10 +939,13 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
                 .load(File(path))
                 .apply(options)
                 .into(object : SimpleTarget<Bitmap>() {
-                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    override fun onResourceReady(
+                        resource: Bitmap,
+                        transition: Transition<in Bitmap>?
+                    ) {
                         try {
                             WallpaperManager.getInstance(applicationContext).setBitmap(resource)
-                            setResult(Activity.RESULT_OK)
+                            setResult(RESULT_OK)
                         } catch (ignored: IOException) {
                         }
 
@@ -825,8 +954,8 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
                 })
         } else if (mIsGetImageIntent || mIsGetVideoIntent || mIsGetAnyIntent) {
             Intent().apply {
-                data = Uri.parse(path)
-                setResult(Activity.RESULT_OK, this)
+                data = path.toUri()
+                setResult(RESULT_OK, this)
             }
             finish()
         } else {
@@ -863,6 +992,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
         mMedia = media
 
         runOnUiThread {
+            binding.loadingIndicator.hide()
             binding.mediaRefreshLayout.isRefreshing = false
             binding.mediaEmptyTextPlaceholder.beVisibleIf(media.isEmpty() && !isFromCache)
             binding.mediaEmptyTextPlaceholder2.beVisibleIf(media.isEmpty() && !isFromCache)
@@ -877,7 +1007,8 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
         mLatestMediaId = getLatestMediaId()
         mLatestMediaDateId = getLatestMediaByDateId()
         if (!isFromCache) {
-            val mediaToInsert = (mMedia).filter { it is Medium && it.deletedTS == 0L }.map { it as Medium }
+            val mediaToInsert = mMedia
+                .filter { it is Medium && it.deletedTS == 0L }.map { it as Medium }
             Thread {
                 try {
                     mediaDB.insertAll(mediaToInsert)
@@ -888,13 +1019,22 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
     }
 
     override fun tryDeleteFiles(fileDirItems: ArrayList<FileDirItem>, skipRecycleBin: Boolean) {
-        val filtered = fileDirItems.filter { !getIsPathDirectory(it.path) && it.path.isMediaFile() } as ArrayList
+        val filtered = fileDirItems
+            .filter { !getIsPathDirectory(it.path) && it.path.isMediaFile() } as ArrayList
         if (filtered.isEmpty()) {
             return
         }
 
-        if (config.useRecycleBin && !skipRecycleBin && !filtered.first().path.startsWith(recycleBinPath)) {
-            val movingItems = resources.getQuantityString(org.fossify.commons.R.plurals.moving_items_into_bin, filtered.size, filtered.size)
+        if (
+            config.useRecycleBin
+            && !skipRecycleBin
+            && !filtered.first().path.startsWith(recycleBinPath)
+        ) {
+            val movingItems = resources.getQuantityString(
+                org.fossify.commons.R.plurals.moving_items_into_bin,
+                filtered.size,
+                filtered.size
+            )
             toast(movingItems)
 
             movePathsInRecycleBin(filtered.map { it.path } as ArrayList<String>) {
@@ -905,13 +1045,19 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
                 }
             }
         } else {
-            val deletingItems = resources.getQuantityString(org.fossify.commons.R.plurals.deleting_items, filtered.size, filtered.size)
+            val deletingItems = resources.getQuantityString(
+                org.fossify.commons.R.plurals.deleting_items,
+                filtered.size,
+                filtered.size
+            )
             toast(deletingItems)
             deleteFilteredFiles(filtered)
         }
     }
 
-    private fun shouldSkipAuthentication() = intent.getBooleanExtra(SKIP_AUTHENTICATION, false)
+    private fun shouldSkipAuthentication(): Boolean {
+        return intent.getBooleanExtra(SKIP_AUTHENTICATION, false)
+    }
 
     private fun deleteFilteredFiles(filtered: ArrayList<FileDirItem>) {
         deleteFiles(filtered) {
@@ -946,7 +1092,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
     override fun selectedPaths(paths: ArrayList<String>) {
         Intent().apply {
             putExtra(PICKED_PATHS, paths)
-            setResult(Activity.RESULT_OK, this)
+            setResult(RESULT_OK, this)
         }
         finish()
     }
@@ -962,7 +1108,8 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
         }
 
         if (binding.mediaGrid.itemDecorationCount > 0) {
-            val currentGridDecoration = binding.mediaGrid.getItemDecorationAt(0) as GridSpacingItemDecoration
+            val currentGridDecoration =
+                binding.mediaGrid.getItemDecorationAt(0) as GridSpacingItemDecoration
             currentGridDecoration.items = media
         }
     }

@@ -17,6 +17,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.RelativeLayout
 import androidx.exifinterface.media.ExifInterface.*
 import com.alexvasilkov.gestures.GestureController
@@ -222,6 +223,7 @@ class PhotoFragment : ViewPagerFragment() {
 
     override fun onPause() {
         super.onPause()
+        activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         storeStateVariables()
     }
 
@@ -247,6 +249,7 @@ class PhotoFragment : ViewPagerFragment() {
             mShouldResetImage = false
         }
 
+        val keepScreenOn = config.keepScreenOn
         val allowPhotoGestures = config.allowPhotoGestures
         val allowInstantChange = config.allowInstantChange
 
@@ -254,6 +257,10 @@ class PhotoFragment : ViewPagerFragment() {
             photoBrightnessController.beVisibleIf(allowPhotoGestures)
             instantPrevItem.beVisibleIf(allowInstantChange)
             instantNextItem.beVisibleIf(allowInstantChange)
+        }
+
+        if (keepScreenOn) {
+            activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
 
         storeStateVariables()
@@ -273,12 +280,6 @@ class PhotoFragment : ViewPagerFragment() {
         }
 
         mLoadZoomableViewHandler.removeCallbacksAndMessages(null)
-        if (mCurrentRotationDegrees != 0) {
-            ensureBackgroundThread {
-                val path = mMedium.path
-                (activity as? BaseSimpleActivity)?.saveRotatedImageToFile(path, path, mCurrentRotationDegrees, false) {}
-            }
-        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -521,6 +522,11 @@ class PhotoFragment : ViewPagerFragment() {
                         loadImage()
                         // TODO: Implement panorama using a FOSS library
                         // checkIfPanorama()
+                    } else {
+                        binding.errorMessageHolder.errorMessage.apply {
+                            setTextColor(if (context.config.blackBackground) Color.WHITE else context.getProperTextColor())
+                            fadeIn()
+                        }
                     }
                 }
             })
