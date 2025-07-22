@@ -645,13 +645,6 @@ class MediaAdapter(
         notifyDataSetChanged()
     }
 
-    private fun enableInstantLoad() {
-        loadImageInstantly = true
-        delayHandler.postDelayed({
-            loadImageInstantly = false
-        }, INSTANT_LOAD_DURATION)
-    }
-
     private fun openAESActivity() {
         val paths = getSelectedPaths()
         activity.startAesActivity(paths)

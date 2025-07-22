@@ -31,7 +31,7 @@ val AESDirItemComparator: Comparator<AESDirItem> = object : Comparator<AESDirIte
     fun compareName(o1: AESDirItem, o2: AESDirItem): Int {
         val o1Name = o1.name ?: ""
         val o2Name = o2.name ?: ""
-        return AlphanumericComparator().compare(o1Name.normalizeString().toLowerCase(), o2Name.normalizeString().toLowerCase())
+        return AlphanumericComparator().compare(o1Name.normalizeString().lowercase(), o2Name.normalizeString().lowercase())
     }
 
     fun compareDir(o1: AESDirItem, o2: AESDirItem): Int? {

@@ -11,6 +11,7 @@ import android.provider.MediaStore.Video
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.Toast
+import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.RecyclerView
 import org.fossify.commons.dialogs.CreateNewFolderDialog
 import org.fossify.commons.dialogs.FilePickerDialog
@@ -439,7 +440,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                     resultIntent.putExtra("path", resultData.data.toString())
                 }
 
-                setResult(Activity.RESULT_OK, resultIntent)
+                setResult(RESULT_OK, resultIntent)
                 finish()
             } else if (requestCode == PICK_WALLPAPER) {
                 setResult(RESULT_OK)
@@ -456,8 +457,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 findItem(R.id.set_as_default_folder).isVisible = !config.defaultFolder.isEmpty()
                 findItem(R.id.open_recycle_bin).isVisible =
                     config.useRecycleBin && !config.showRecycleBinAtFolders
-                findItem(R.id.more_apps_from_us).isVisible =
-                    !resources.getBoolean(org.fossify.commons.R.bool.hide_google_relations)
+//                findItem(R.id.more_apps_from_us).isVisible =
+//                    !resources.getBoolean(org.fossify.commons.R.bool.hide_google_relations)
             }
         }
 
@@ -510,7 +511,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 R.id.open_recycle_bin -> openRecycleBin()
                 R.id.column_count -> changeColumnCount()
                 R.id.set_as_default_folder -> setAsDefaultFolder()
-                R.id.more_apps_from_us -> launchMoreAppsFromUsIntent()
+//                R.id.more_apps_from_us -> launchMoreAppsFromUsIntent()
                 R.id.donate -> launchAESDonate()
                 R.id.settings -> launchSettings()
                 R.id.about -> launchAbout()

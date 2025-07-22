@@ -13,9 +13,11 @@ import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.commons.helpers.isPiePlus
 import org.fossify.gallery.R
 import org.fossify.gallery.aes.BaseActivityOverride
+import org.fossify.gallery.dialogs.StoragePermissionRequiredDialog
 import org.fossify.gallery.extensions.addPathToDB
 import org.fossify.gallery.extensions.config
 import org.fossify.gallery.extensions.updateDirectoryPath
+import org.fossify.gallery.helpers.getPermissionsToRequest
 
 open class SimpleActivity : BaseActivityOverride() {
 

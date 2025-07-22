@@ -124,7 +124,7 @@ class AESFileAdapter(
                 } else {
                     listItemDetails.text = "${fileDirItem.size.formatSize()} | ${fileDirItem.fileInfo?.lastMod?.formatDate(activity)}"
                     val path = fileDirItem.path
-                    val placeholder = fileDrawables.getOrElse(fileDirItem.name.substringAfterLast(".").toLowerCase(Locale.getDefault()), { fileDrawable })
+                    val placeholder = fileDrawables.getOrElse(fileDirItem.name.substringAfterLast(".").lowercase(Locale.getDefault()), { fileDrawable })
                     val options = RequestOptions()
                         .signature(fileDirItem.getKey())
                         .diskCacheStrategy(DiskCacheStrategy.NONE)

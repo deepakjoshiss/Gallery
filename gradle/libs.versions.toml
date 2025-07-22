@@ -38,6 +38,8 @@ glide = "4.16.0"
 glideCompose = "1.0.0-beta01"
 #Room
 room = "2.7.1"
+#exif
+exif = "1.0.1"
 #ezVcard
 ezVcard = "0.11.3"
 #gson
@@ -72,6 +74,8 @@ app-build-kotlinJVMTarget = "17"
 app-version-appId = "org.fossify.gallery"
 app-version-versionCode = "9"
 app-version-versionName = "1.2.1"
+workVersion = "2.9.0"
+ccLinkedHashMap = "1.4.2"
 
 [libraries]
 #Android X
@@ -144,6 +148,8 @@ zjupure-webpdecoder = { module = "com.github.zjupure:webpdecoder", version.ref =
 picasso = { module = "com.squareup.picasso:picasso", version.ref = "picasso" }
 avif-integration = { group = "com.github.bumptech.glide", name = "avif-integration", version.ref = "glideCompiler" }
 jxl-integration = { group = "io.github.awxkee", name = "jxl-coder-glide", version.ref = "jxlDecoder" }
+linkedhashmap = {module = "com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru", version.ref = "ccLinkedHashMap"}
+kotlin-work-runtime = { module = "androidx.work:work-runtime", version.ref = "workVersion" }
 
 [bundles]
 compose = [
@@ -180,3 +186,6 @@ kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
+
